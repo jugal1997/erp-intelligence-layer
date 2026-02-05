@@ -17,7 +17,7 @@ WITH source AS (
 cleaned AS (
   SELECT
     -- Transaction identifiers
-    CAST(transaction_id AS STRING) AS transaction_id,
+    CAST(invoice_number AS STRING) AS transaction_id,
     
     -- Date handling
     PARSE_DATE('%Y-%m-%d', transaction_date) AS transaction_date,
@@ -27,12 +27,12 @@ cleaned AS (
     EXTRACT(QUARTER FROM PARSE_DATE('%Y-%m-%d', transaction_date)) AS transaction_quarter,
     
     -- Customer information
-    CAST(customer_name AS STRING) AS customer_id,  -- Using name as ID for now
+    CAST(customer_name AS STRING) AS customer_id,
     TRIM(UPPER(customer_name)) AS customer_name,
     
     -- Product information
     TRIM(product_name) AS product_name,
-    CAST(product_name AS STRING) AS product_id,  -- Using name as ID for now
+    CAST(product_name AS STRING) AS product_id,
     
     -- Quantities and pricing
     CAST(quantity AS NUMERIC) AS quantity,
@@ -54,7 +54,7 @@ cleaned AS (
     
     SAFE.PARSE_DATE('%Y-%m-%d', payment_due_date) AS payment_due_date,
     
-    -- Calculate days overdue (if unpaid)
+    -- Calculate days overdue
     CASE 
       WHEN TRIM(UPPER(COALESCE(payment_status, 'UNPAID'))) = 'PAID' THEN 0
       WHEN SAFE.PARSE_DATE('%Y-%m-%d', payment_due_date) IS NULL THEN NULL
