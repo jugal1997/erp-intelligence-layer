@@ -1,0 +1,60 @@
+# Source definitions for raw ERP data in BigQuery
+
+version: 2
+
+sources:
+  - name: raw_erp
+    description: "Raw data uploaded from ERP systems (GoFrugal, Tally, etc.)"
+    database: "{{ env_var('GOOGLE_CLOUD_PROJECT') }}"
+    schema: raw_erp
+    
+    tables:
+      - name: sales_raw
+        description: "Raw sales/invoice data"
+        columns:
+          - name: transaction_id
+            description: "Unique transaction identifier"
+            tests:
+              - not_null
+              - unique
+          
+          - name: transaction_date
+            description: "Date of transaction"
+            tests:
+              - not_null
+          
+          - name: customer_name
+            description: "Customer name"
+            tests:
+              - not_null
+          
+          - name: product_name
+            description: "Product name"
+            tests:
+              - not_null
+          
+          - name: quantity
+            description: "Quantity sold"
+            tests:
+              - not_null
+          
+          - name: unit_price
+            description: "Price per unit"
+            tests:
+              - not_null
+          
+          - name: total_amount
+            description: "Total transaction amount"
+            tests:
+              - not_null
+      
+      - name: inventory_raw
+        description: "Raw inventory data"
+        columns:
+          - name: product_id
+            tests:
+              - not_null
+          
+          - name: quantity_on_hand
+            tests:
+              - not_null

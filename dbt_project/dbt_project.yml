@@ -1,0 +1,48 @@
+name: 'erp_intelligence'
+version: '1.0.0'
+config-version: 2
+
+# Profile name (must match profiles.yml)
+profile: 'erp_intelligence'
+
+# Directories
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Model configurations
+models:
+  erp_intelligence:
+    
+    # Staging models
+    staging:
+      +materialized: view
+      +schema: staging
+      
+    # Intermediate models
+    intermediate:
+      +materialized: ephemeral
+      +schema: intermediate
+      
+    # Marts
+    marts:
+      +materialized: table
+      +schema: marts
+
+# Variables
+vars:
+  # Analysis parameters
+  analysis_start_date: '2024-01-01'
+  
+  # Business rules
+  dead_stock_days: 90
+  low_margin_threshold: 0.10
+  credit_risk_days: 15

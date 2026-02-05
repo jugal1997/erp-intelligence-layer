@@ -6,6 +6,8 @@ numpy==1.26.3
 google-cloud-bigquery==3.17.2
 google-auth==2.27.0
 db-dtypes==1.2.0
+protobuf==4.25.3
+
 
 # dbt
 dbt-core==1.7.7

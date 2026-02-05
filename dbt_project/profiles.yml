@@ -1,0 +1,25 @@
+# dbt Profile Configuration for BigQuery
+
+erp_intelligence:
+  target: dev
+  outputs:
+    
+    dev:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GOOGLE_CLOUD_PROJECT') }}"
+      dataset: staging  # Default dataset for dev
+      threads: 4
+      timeout_seconds: 300
+      location: asia-south1
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
+      
+    prod:
+      type: bigquery
+      method: service-account
+      project: "{{ env_var('GOOGLE_CLOUD_PROJECT') }}"
+      dataset: marts  # Default dataset for prod
+      threads: 8
+      timeout_seconds: 300
+      location: asia-south1
+      keyfile: "{{ env_var('GOOGLE_APPLICATION_CREDENTIALS') }}"
