@@ -11,7 +11,9 @@ from pathlib import Path
 from typing import Dict, List
 from dataclasses import dataclass
 from datetime import datetime
+import logging
 
+logger = logging.getLogger(__name__)
 
 @dataclass
 class Alert:
@@ -108,53 +110,75 @@ class IntelligenceAnalyzer:
         return results
     
     def generate_alerts(self, data: Dict[str, pd.DataFrame]) -> List[Alert]:
-        """Convert dataframes to structured alerts"""
+        """Generate prioritized alerts from mart data"""
         alerts = []
-        
-        # Dead stock alerts
-        for _, row in data['dead_stock'].iterrows():
-            alerts.append(Alert(
-                alert_type='DEAD_STOCK',
-                severity=row['severity'],
-                entity=row['entity'],
-                metric_value=float(row['metric_value']),
-                threshold=90.0,
-                message=f"{row['entity']} not sold for {row['metric_value']:.0f} days",
-                action=row['action'],
-                timestamp=datetime.now()
-            ))
-        
-        # Low margin alerts
-        for _, row in data['low_margin'].iterrows():
-            alerts.append(Alert(
-                alert_type='LOW_MARGIN',
-                severity=row['severity'],
-                entity=row['entity'],
-                metric_value=float(row['metric_value']),
-                threshold=10.0,
-                message=f"{row['entity']} has {row['metric_value']:.1f}% margin",
-                action=row['action'],
-                timestamp=datetime.now()
-            ))
-        
-        # Credit risk alerts
+    
+        # Process credit risk
         for _, row in data['credit_risk'].iterrows():
             alerts.append(Alert(
                 alert_type='CREDIT_RISK',
                 severity=row['severity'],
                 entity=row['entity'],
                 metric_value=float(row['metric_value']),
-                threshold=0.0,
+                threshold=row.get('threshold', 0.0),  # ✅ Add threshold
                 message=f"{row['entity']} owes ₹{row['metric_value']:,.0f}",
                 action=row['action'],
                 timestamp=datetime.now()
             ))
+    
+        # Process dead stock
+        for _, row in data['dead_stock'].iterrows():
+            alerts.append(Alert(
+                alert_type='DEAD_STOCK',
+                severity=row['severity'],
+                entity=row['entity'],
+                metric_value=float(row['metric_value']),
+                threshold=row.get('threshold', 0.0),  # ✅ Add threshold
+                message=f"{row['entity']} not sold for {int(row['metric_value'])} days",
+                action=row['action'],
+                timestamp=datetime.now()
+            ))
         
-        # Sort by severity
+        # Process low margin
+        for _, row in data['low_margin'].iterrows():
+            alerts.append(Alert(
+                alert_type='LOW_MARGIN',
+                severity=row['severity'],
+                entity=row['entity'],
+                metric_value=float(row['metric_value']),
+                threshold=row.get('threshold', 0.0),  # ✅ Add threshold
+                message=f"{row['entity']} has {row['metric_value']:.1f}% margin",
+                action=row['action'],
+                timestamp=datetime.now()
+            ))
+    
+        # BALANCED SAMPLING: Take top N from each category
+        balanced_alerts = []
+        
+        # Define how many from each category
+        allocation = {
+            'CREDIT_RISK': 5,
+            'DEAD_STOCK': 5,
+            'LOW_MARGIN': 5
+        }
+    
         severity_order = {'CRITICAL': 0, 'HIGH': 1, 'MEDIUM': 2, 'LOW': 3}
-        alerts.sort(key=lambda x: (severity_order.get(x.severity, 99), -x.metric_value))
         
-        return alerts[:10]  # Top 10 alerts
+        for alert_type, max_count in allocation.items():
+            # Get alerts of this type
+            type_alerts = [a for a in alerts if a.alert_type == alert_type]
+            
+            # Sort by severity (then by metric_value as tiebreaker)
+            type_alerts.sort(key=lambda x: (
+                severity_order[x.severity],
+                -x.metric_value  # Higher value = higher priority
+            ))
+            
+            # Take top N from this category
+            balanced_alerts.extend(type_alerts[:max_count])
+        
+        return balanced_alerts
+
 
 
 # Test function

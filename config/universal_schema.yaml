@@ -401,6 +401,24 @@ erp_mappings:
       product_name: "StockItemName"
       quantity_on_hand: "ClosingBalance"
 
+  # NEW: Add Kaggle mapping
+  kaggle:
+    sales_transactions:
+      transaction_id: "ORDERNUMBER"
+      invoice_number: "ORDERNUMBER"
+      transaction_date: "ORDERDATE"
+      customer_id: "CUSTOMERNAME"
+      customer_name: "CUSTOMERNAME"
+      product_id: "PRODUCTCODE"
+      product_name: "PRODUCTLINE"
+      quantity: "QUANTITYORDERED"
+      unit_price: "PRICEEACH"
+      cost_price: "PRICEEACH"  # Kaggle doesn't have cost - we'll use price * 0.8
+      total_amount: "SALES"
+      tax_amount: "SALES"
+      payment_status: "STATUS"
+      payment_due_date: "ORDERDATE"
+
 # ============================================
 # DATA QUALITY RULES
 # ============================================

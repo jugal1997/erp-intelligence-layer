@@ -200,7 +200,16 @@ class AutomatedCSVCleaner:
         print(f"{'='*60}")
         
         # Read CSV
-        df = pd.read_csv(input_path)
+        # Try multiple encodings
+        try:
+            df = pd.read_csv(input_path, encoding='utf-8')
+        except UnicodeDecodeError:
+            try:
+                print("   ⚠️  UTF-8 failed, trying Windows-1252 encoding...")
+                df = pd.read_csv(input_path, encoding='windows-1252')
+            except UnicodeDecodeError:
+                print("   ⚠️  Windows-1252 failed, trying Latin-1 encoding...")
+                df = pd.read_csv(input_path, encoding='latin-1')
         print(f"\n📊 Input Data:")
         print(f"   Rows: {len(df):,}")
         print(f"   Columns: {len(df.columns)}")
