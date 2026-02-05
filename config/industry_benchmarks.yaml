@@ -1,0 +1,158 @@
+# Industry-Specific Benchmarks and Business Rules
+# These are domain expert inputs for different industries
+
+version: "1.0"
+
+# ============================================
+# PUMP DISTRIBUTOR BENCHMARKS
+# ============================================
+industries:
+  
+  pump_distributor:
+    display_name: "Pump & Motor Distributor"
+    description: "Benchmarks for agricultural and industrial pump distributors"
+    
+    # Seasonality
+    seasonality:
+      high_season:
+        months: [6, 7, 8]  # June, July, August (Monsoon)
+        description: "Monsoon season - peak demand for agricultural pumps"
+        expected_sales_multiplier: 2.5
+      
+      low_season:
+        months: [11, 12, 1, 2]  # Winter
+        description: "Low agricultural activity"
+        expected_sales_multiplier: 0.7
+      
+      normal_season:
+        months: [3, 4, 5, 9, 10]
+        expected_sales_multiplier: 1.0
+    
+    # Margin Benchmarks
+    margins:
+      healthy_margin: 0.15  # 15%
+      acceptable_margin: 0.10  # 10%
+      critical_threshold: 0.05  # 5%
+      
+      by_category:
+        "Monoblock Pump":
+          target_margin: 0.12
+          min_margin: 0.08
+        
+        "Submersible Pump":
+          target_margin: 0.18
+          min_margin: 0.12
+        
+        "Motor":
+          target_margin: 0.10
+          min_margin: 0.06
+        
+        "Accessories":
+          target_margin: 0.25
+          min_margin: 0.15
+    
+    # Inventory Benchmarks
+    inventory:
+      dead_stock_days: 90
+      slow_moving_days: 60
+      target_stock_turnover_days: 45
+      
+      by_category:
+        "Monoblock Pump":
+          turnover_days: 30
+        
+        "Submersible Pump":
+          turnover_days: 45
+        
+        "Motor":
+          turnover_days: 40
+    
+    # Credit & Payment Benchmarks
+    credit:
+      standard_credit_period: 30  # days
+      maximum_credit_period: 45
+      overdue_threshold: 15  # days past due
+      critical_overdue: 60
+      
+      credit_score_weights:
+        payment_history: 0.4
+        overdue_amount: 0.3
+        payment_frequency: 0.2
+        customer_tenure: 0.1
+    
+    # Product Categories
+    product_categories:
+      - "Monoblock Pump"
+      - "Submersible Pump"
+      - "Openwell Pump"
+      - "Motor"
+      - "Control Panel"
+      - "Accessories"
+      - "Spare Parts"
+
+# ============================================
+# GENERAL DISTRIBUTOR BENCHMARKS
+# ============================================
+  
+  general_distributor:
+    display_name: "General Distributor"
+    description: "Default benchmarks for businesses without specific industry kit"
+    
+    margins:
+      healthy_margin: 0.15
+      acceptable_margin: 0.10
+      critical_threshold: 0.05
+    
+    inventory:
+      dead_stock_days: 90
+      slow_moving_days: 60
+      target_stock_turnover_days: 60
+    
+    credit:
+      standard_credit_period: 30
+      maximum_credit_period: 45
+      overdue_threshold: 15
+      critical_overdue: 60
+
+# ============================================
+# ALERT THRESHOLDS
+# ============================================
+alert_thresholds:
+  
+  dead_stock:
+    critical: 180  # days
+    high: 120
+    medium: 90
+    low: 60
+  
+  low_margin:
+    critical: 0.00  # Selling at loss
+    high: 0.05      # Less than 5%
+    medium: 0.10    # Less than 10%
+  
+  credit_risk:
+    critical_days: 90
+    critical_amount: 100000  # ₹1 Lakh
+    high_days: 60
+    high_amount: 50000
+    medium_days: 30
+
+# ============================================
+# WHATSAPP MESSAGE SETTINGS
+# ============================================
+messaging:
+  max_alerts_per_message: 5
+  max_items_per_category: 3
+  send_time: "09:00"  # 9 AM
+  timezone: "Asia/Kolkata"
+  
+  emoji_map:
+    critical: "🔴"
+    high: "🟠"
+    medium: "🟡"
+    low: "🟢"
+    dead_stock: "📦"
+    low_margin: "💰"
+    credit_risk: "💳"
+    success: "✅"
+    warning: "⚠️"

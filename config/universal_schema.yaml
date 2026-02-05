@@ -1,0 +1,430 @@
+# Universal Schema for ERP Data Normalization
+# Version: 1.0
+# Purpose: Standardize data from different ERP systems (GoFrugal, Tally, etc.)
+
+version: "1.0"
+description: "Universal schema for Indian distributor ERP data"
+
+# ============================================
+# CORE ENTITIES
+# ============================================
+
+entities:
+  
+  # -----------------------------------------
+  # SALES TRANSACTIONS
+  # -----------------------------------------
+  sales_transactions:
+    description: "Normalized sales/invoice data from ERP systems"
+    primary_key: transaction_id
+    
+    fields:
+      # Transaction Identifiers
+      - name: transaction_id
+        type: STRING
+        required: true
+        description: "Unique identifier for each transaction/invoice"
+        example: "INV-2024-001234"
+      
+      - name: invoice_number
+        type: STRING
+        required: false
+        description: "Human-readable invoice number"
+        example: "BILL-001"
+      
+      # Date & Time
+      - name: transaction_date
+        type: DATE
+        required: true
+        description: "Date when transaction occurred"
+        format: "YYYY-MM-DD"
+        example: "2024-03-15"
+      
+      - name: transaction_time
+        type: TIMESTAMP
+        required: false
+        description: "Full timestamp of transaction"
+        example: "2024-03-15 14:30:00"
+      
+      # Customer Information
+      - name: customer_id
+        type: STRING
+        required: true
+        description: "Unique customer/dealer identifier"
+        example: "CUST-001"
+      
+      - name: customer_name
+        type: STRING
+        required: true
+        description: "Customer business name"
+        example: "Rajesh Traders"
+      
+      - name: customer_type
+        type: STRING
+        required: false
+        description: "Type of customer"
+        allowed_values: ["Dealer", "Retailer", "Distributor", "Direct", "Wholesaler"]
+        example: "Dealer"
+      
+      # Product Information
+      - name: product_id
+        type: STRING
+        required: true
+        description: "Unique product/SKU identifier"
+        example: "PROD-HP-1.5"
+      
+      - name: product_name
+        type: STRING
+        required: true
+        description: "Product description"
+        example: "Crompton 1.5HP Monoblock Pump"
+      
+      - name: product_category
+        type: STRING
+        required: false
+        description: "Product category (industry-specific)"
+        example: "Monoblock Pump"
+      
+      - name: product_brand
+        type: STRING
+        required: false
+        description: "Brand/manufacturer name"
+        example: "Crompton"
+      
+      # Quantity & Pricing
+      - name: quantity
+        type: NUMERIC
+        required: true
+        description: "Number of units sold"
+        example: 5
+      
+      - name: unit_of_measure
+        type: STRING
+        required: false
+        description: "Unit (PCS, KG, LITRE, etc.)"
+        example: "PCS"
+      
+      - name: unit_price
+        type: NUMERIC
+        required: true
+        description: "Selling price per unit (before tax)"
+        example: 4500.00
+      
+      - name: cost_price
+        type: NUMERIC
+        required: false
+        description: "Cost price per unit (for margin calculation)"
+        example: 3800.00
+      
+      - name: total_amount
+        type: NUMERIC
+        required: true
+        description: "Total transaction value (quantity × unit_price)"
+        example: 22500.00
+      
+      - name: discount_amount
+        type: NUMERIC
+        required: false
+        description: "Total discount given"
+        example: 500.00
+      
+      - name: tax_amount
+        type: NUMERIC
+        required: false
+        description: "GST/Tax amount"
+        example: 4050.00
+      
+      - name: final_amount
+        type: NUMERIC
+        required: false
+        description: "Final payable amount (after discount & tax)"
+        example: 26050.00
+      
+      # Payment Information
+      - name: payment_status
+        type: STRING
+        required: false
+        description: "Payment status"
+        allowed_values: ["Paid", "Unpaid", "Partial", "Credit"]
+        example: "Credit"
+      
+      - name: payment_mode
+        type: STRING
+        required: false
+        description: "How payment was made"
+        allowed_values: ["Cash", "Card", "UPI", "Cheque", "Bank Transfer", "Credit"]
+        example: "Credit"
+      
+      - name: payment_due_date
+        type: DATE
+        required: false
+        description: "When payment is due"
+        example: "2024-04-15"
+      
+      - name: payment_received_date
+        type: DATE
+        required: false
+        description: "When payment was actually received"
+        example: "2024-04-10"
+      
+      - name: amount_paid
+        type: NUMERIC
+        required: false
+        description: "Amount actually paid (for partial payments)"
+        example: 15000.00
+      
+      # Additional Context
+      - name: salesperson_id
+        type: STRING
+        required: false
+        description: "Sales representative ID"
+        example: "SALES-001"
+      
+      - name: territory
+        type: STRING
+        required: false
+        description: "Sales territory/region"
+        example: "Surat City"
+      
+      - name: notes
+        type: STRING
+        required: false
+        description: "Any additional notes"
+        example: "Rush delivery requested"
+  
+  # -----------------------------------------
+  # INVENTORY DATA
+  # -----------------------------------------
+  inventory:
+    description: "Current stock/inventory positions"
+    primary_key: ["product_id", "snapshot_date"]
+    
+    fields:
+      - name: product_id
+        type: STRING
+        required: true
+        description: "Product identifier"
+      
+      - name: product_name
+        type: STRING
+        required: true
+        description: "Product description"
+      
+      - name: snapshot_date
+        type: DATE
+        required: true
+        description: "Date of inventory snapshot"
+        example: "2024-03-31"
+      
+      - name: quantity_on_hand
+        type: NUMERIC
+        required: true
+        description: "Current stock quantity"
+        example: 25
+      
+      - name: warehouse_location
+        type: STRING
+        required: false
+        description: "Storage location"
+        example: "Warehouse A"
+      
+      - name: last_sale_date
+        type: DATE
+        required: false
+        description: "When this item was last sold"
+        example: "2024-02-10"
+      
+      - name: last_purchase_date
+        type: DATE
+        required: false
+        description: "When this item was last purchased/restocked"
+        example: "2024-01-05"
+      
+      - name: reorder_level
+        type: NUMERIC
+        required: false
+        description: "Minimum stock before reorder"
+        example: 10
+  
+  # -----------------------------------------
+  # CUSTOMER MASTER
+  # -----------------------------------------
+  customers:
+    description: "Customer/dealer master data"
+    primary_key: customer_id
+    
+    fields:
+      - name: customer_id
+        type: STRING
+        required: true
+        description: "Unique customer identifier"
+      
+      - name: customer_name
+        type: STRING
+        required: true
+        description: "Business name"
+      
+      - name: customer_type
+        type: STRING
+        required: false
+        description: "Customer category"
+        allowed_values: ["Dealer", "Retailer", "Distributor", "Direct"]
+      
+      - name: credit_limit
+        type: NUMERIC
+        required: false
+        description: "Maximum credit allowed (in ₹)"
+        example: 100000
+      
+      - name: credit_period_days
+        type: INTEGER
+        required: false
+        description: "Standard credit period"
+        example: 30
+      
+      - name: territory
+        type: STRING
+        required: false
+        description: "Sales territory"
+      
+      - name: phone
+        type: STRING
+        required: false
+        description: "Contact phone number"
+      
+      - name: email
+        type: STRING
+        required: false
+        description: "Email address"
+      
+      - name: registration_date
+        type: DATE
+        required: false
+        description: "When customer was onboarded"
+  
+  # -----------------------------------------
+  # PRODUCT MASTER
+  # -----------------------------------------
+  products:
+    description: "Product/item master data"
+    primary_key: product_id
+    
+    fields:
+      - name: product_id
+        type: STRING
+        required: true
+        description: "Unique product identifier"
+      
+      - name: product_name
+        type: STRING
+        required: true
+        description: "Product description"
+      
+      - name: product_category
+        type: STRING
+        required: false
+        description: "Category"
+      
+      - name: brand
+        type: STRING
+        required: false
+        description: "Brand name"
+      
+      - name: unit_of_measure
+        type: STRING
+        required: false
+        description: "UOM"
+      
+      - name: standard_cost
+        type: NUMERIC
+        required: false
+        description: "Standard cost price"
+      
+      - name: standard_price
+        type: NUMERIC
+        required: false
+        description: "Standard selling price"
+      
+      - name: is_active
+        type: BOOLEAN
+        required: false
+        description: "Is product still being sold"
+
+# ============================================
+# ERP SYSTEM MAPPINGS
+# ============================================
+# How to map fields from specific ERP systems to universal schema
+
+erp_mappings:
+  
+  # GoFrugal Mapping
+  gofrugal:
+    description: "Field mappings for GoFrugal ERP exports"
+    
+    sales_transactions:
+      transaction_id: "BillNo"
+      invoice_number: "BillNo"
+      transaction_date: "BillDate"
+      customer_id: "CustomerCode"
+      customer_name: "CustomerName"
+      product_id: "ItemCode"
+      product_name: "ItemName"
+      quantity: "Qty"
+      unit_price: "Rate"
+      cost_price: "CostPrice"
+      total_amount: "Amount"
+      tax_amount: "GSTAmount"
+      payment_status: "PaymentStatus"
+      payment_due_date: "DueDate"
+    
+    inventory:
+      product_id: "ItemCode"
+      product_name: "ItemName"
+      quantity_on_hand: "StockQty"
+      last_sale_date: "LastSaleDate"
+  
+  # Tally Mapping
+  tally:
+    description: "Field mappings for Tally ERP exports"
+    
+    sales_transactions:
+      transaction_id: "VoucherNumber"
+      transaction_date: "VoucherDate"
+      customer_name: "PartyName"
+      product_name: "StockItemName"
+      quantity: "Quantity"
+      unit_price: "Rate"
+      total_amount: "Amount"
+      tax_amount: "TaxAmount"
+    
+    inventory:
+      product_name: "StockItemName"
+      quantity_on_hand: "ClosingBalance"
+
+# ============================================
+# DATA QUALITY RULES
+# ============================================
+data_quality_rules:
+  
+  sales_transactions:
+    - rule: "quantity must be greater than 0"
+      severity: "error"
+    
+    - rule: "unit_price must be greater than 0"
+      severity: "error"
+    
+    - rule: "total_amount should equal quantity × unit_price"
+      severity: "warning"
+    
+    - rule: "cost_price should be less than unit_price"
+      severity: "warning"
+    
+    - rule: "transaction_date should not be in future"
+      severity: "error"
+  
+  inventory:
+    - rule: "quantity_on_hand must be >= 0"
+      severity: "error"
+    
+    - rule: "last_sale_date should not be after snapshot_date"
+      severity: "error"

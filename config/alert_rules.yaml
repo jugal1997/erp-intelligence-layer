@@ -1,0 +1,148 @@
+# Alert Generation Rules
+# Defines when and how to generate alerts
+
+version: "1.0"
+
+# ============================================
+# ALERT RULES
+# ============================================
+
+rules:
+  
+  # -----------------------------------------
+  # DEAD STOCK ALERTS
+  # -----------------------------------------
+  dead_stock:
+    enabled: true
+    priority: high
+    
+    conditions:
+      - field: days_since_last_sale
+        operator: ">="
+        value: 90
+      
+      - field: quantity_on_hand
+        operator: ">"
+        value: 0
+    
+    severity_levels:
+      critical:
+        days_since_last_sale: 180
+        message: "URGENT: {product_name} not sold for {days} days. {qty} units blocking ₹{value}"
+        action: "Liquidate immediately at 20-30% discount"
+      
+      high:
+        days_since_last_sale: 120
+        message: "{product_name} not sold for {days} days. {qty} units in stock."
+        action: "Run promotional offer this week"
+      
+      medium:
+        days_since_last_sale: 90
+        message: "{product_name} moving slow. {qty} units, {days} days no sale."
+        action: "Monitor closely, prepare promotion"
+  
+  # -----------------------------------------
+  # LOW MARGIN ALERTS
+  # -----------------------------------------
+  low_margin:
+    enabled: true
+    priority: high
+    
+    conditions:
+      - field: margin_percentage
+        operator: "<"
+        value: 0.10
+      
+      - field: cost_price
+        operator: "IS NOT NULL"
+    
+    severity_levels:
+      critical:
+        margin_percentage: 0.00
+        message: "LOSS: {customer_name} buying {product_name} at {margin}% margin"
+        action: "Review pricing immediately. Selling below cost!"
+      
+      high:
+        margin_percentage: 0.05
+        message: "Low margin: {customer_name} - {product_name} at {margin}%"
+        action: "Renegotiate pricing or reduce discount"
+      
+      medium:
+        margin_percentage: 0.10
+        message: "{customer_name} - {product_name}: {margin}% margin (target: 15%)"
+        action: "Review discount policy"
+  
+  # -----------------------------------------
+  # CREDIT RISK ALERTS
+  # -----------------------------------------
+  credit_risk:
+    enabled: true
+    priority: critical
+    
+    conditions:
+      - field: payment_status
+        operator: "!="
+        value: "Paid"
+      
+      - field: days_overdue
+        operator: ">="
+        value: 15
+    
+    severity_levels:
+      critical:
+        conditions:
+          - days_overdue: 90
+          - total_overdue_amount: 100000
+        message: "CRITICAL: {customer_name} owes ₹{amount} ({invoices} bills), {days} days overdue"
+        action: "Stop all credit immediately. Initiate legal recovery."
+      
+      high:
+        days_overdue: 60
+        message: "{customer_name} owes ₹{amount}, {days} days overdue"
+        action: "Final notice. Stop further sales."
+      
+      medium:
+        days_overdue: 30
+        message: "{customer_name}: ₹{amount} overdue by {days} days"
+        action: "Send payment reminder. Follow up personally."
+      
+      low:
+        days_overdue: 15
+        message: "{customer_name}: ₹{amount} payment pending"
+        action: "Gentle reminder"
+
+  # -----------------------------------------
+  # STOCK OUT ALERTS (Future)
+  # -----------------------------------------
+  stock_out:
+    enabled: false  # Not implemented yet
+    priority: medium
+    
+    conditions:
+      - field: quantity_on_hand
+        operator: "<="
+        value_ref: "reorder_level"
+
+# ============================================
+# ALERT DELIVERY SETTINGS
+# ============================================
+
+delivery:
+  
+  frequency:
+    daily_digest: true
+    digest_time: "09:00"
+    
+    real_time_alerts:
+      enabled: false  # Future feature
+      trigger_on: ["critical"]
+  
+  grouping:
+    group_by_type: true  # Group dead stock, credit risk, etc.
+    max_per_group: 3
+  
+  formatting:
+    use_emoji: true
+    currency_symbol: "₹"
+    date_format: "%d %b %Y"
+    number_format: "indian"  # 1,00,000 instead of 100,000
