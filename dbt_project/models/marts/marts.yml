@@ -1,0 +1,40 @@
+version: 2
+
+models:
+  - name: mart_dead_stock
+    description: "Products not selling for extended periods - cash locked in inventory"
+    columns:
+      - name: product_id
+        description: "Product identifier"
+      - name: days_since_last_sale
+        description: "Days since this product was last sold"
+      - name: alert_severity
+        description: "CRITICAL (180+ days) | HIGH (120+ days) | MEDIUM (90+ days)"
+      - name: recommended_action
+        description: "Specific action to take"
+    
+  - name: mart_low_margin_sales
+    description: "Sales transactions with insufficient profit margins"
+    columns:
+      - name: transaction_id
+        description: "Transaction identifier"
+      - name: margin_percentage
+        description: "Profit margin (0.10 = 10%)"
+      - name: alert_severity
+        description: "CRITICAL (loss) | HIGH (<5%) | MEDIUM (<10%)"
+      - name: probable_cause
+        description: "Why margin is low"
+    
+  - name: mart_credit_risk
+    description: "Customers with overdue payments - cash flow risk"
+    columns:
+      - name: customer_name
+        description: "Customer name"
+      - name: total_overdue_amount
+        description: "Total amount owed"
+      - name: max_days_overdue
+        description: "Longest overdue invoice age"
+      - name: payment_score
+        description: "0-100 payment reliability score"
+      - name: alert_severity
+        description: "CRITICAL | HIGH | MEDIUM | LOW"

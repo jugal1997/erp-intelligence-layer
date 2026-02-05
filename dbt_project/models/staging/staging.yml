@@ -1,0 +1,45 @@
+version: 2
+
+models:
+  - name: stg_sales_transactions
+    description: "Cleaned and standardized sales transaction data"
+    columns:
+      - name: transaction_id
+        description: "Unique transaction identifier"
+        tests:
+          - not_null
+          - unique
+      
+      - name: transaction_date
+        description: "Date of transaction"
+        tests:
+          - not_null
+      
+      - name: customer_name
+        description: "Customer name (standardized to uppercase)"
+        tests:
+          - not_null
+      
+      - name: product_name
+        description: "Product name"
+        tests:
+          - not_null
+      
+      - name: quantity
+        description: "Quantity sold"
+        tests:
+          - not_null
+      
+      - name: unit_price
+        description: "Selling price per unit"
+        tests:
+          - not_null
+      
+      - name: margin_percentage
+        description: "Profit margin as decimal (0.15 = 15%)"
+      
+      - name: payment_status
+        description: "Payment status (PAID, UNPAID, CREDIT, PARTIAL)"
+      
+      - name: days_overdue
+        description: "Number of days payment is overdue (0 if paid, NULL if no due date)"

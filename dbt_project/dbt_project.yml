@@ -21,21 +21,20 @@ clean-targets:
 # Model configurations
 models:
   erp_intelligence:
-    
-    # Staging models
     staging:
       +materialized: view
-      +schema: staging
-      
-    # Intermediate models
+      # REMOVE this line:
+      # +schema: staging
+
     intermediate:
       +materialized: ephemeral
-      +schema: intermediate
-      
-    # Marts
+      # +schema: intermediate
+
     marts:
       +materialized: table
-      +schema: marts
+      # +schema: marts
+
+
 
 # Variables
 vars:
